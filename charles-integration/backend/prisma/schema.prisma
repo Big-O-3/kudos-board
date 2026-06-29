@@ -1,0 +1,33 @@
+// Merged schema for the integrated app (kudos_full).
+// Combines Prateek's Board model + Brandon's Card model, with the
+// one-to-many relation (Board → Cards, cascade delete) added for integration.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Board {
+  id        Int      @id @default(autoincrement())
+  title     String
+  category  String
+  author    String?
+  imageUrl  String
+  createdAt DateTime @default(now())
+  cards     Card[]
+}
+
+model Card {
+  id        Int      @id @default(autoincrement())
+  boardId   Int
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  message   String
+  gifUrl    String
+  author    String?
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+}

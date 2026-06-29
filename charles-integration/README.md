@@ -58,13 +58,13 @@
 ### Phase 2: Integration (Days 5-7)
 
 #### Day 5 (Sunday) — Backend Integration
-- [ ] Wait for Prateek and Brandon to push their code
-- [ ] Create `charles-integration/backend/`
-- [ ] `npm init -y && npm install express cors @prisma/client pg`
-- [ ] `npx prisma init`
-- [ ] Copy Prateek's 3 board routes into `index.js`
-- [ ] Copy Brandon's 4 card routes into same `index.js`
-- [ ] Merge `schema.prisma`:
+- [ ] ⏳ **BLOCKED**: Prateek and Brandon haven't pushed their code yet (folders still README-only). Backend built from the planning.md contract instead; reconcile against their code on Day 7.
+- [x] Create `charles-integration/backend/`
+- [x] `npm init -y && npm install express cors @prisma/client pg` (Prisma pinned to v6 — see backend/README.md)
+- [x] `npx prisma init` (schema + .env created)
+- [~] Copy Prateek's 3 board routes into `index.js` — implemented from spec (GET/POST/DELETE /boards); copy-verify when pushed
+- [~] Copy Brandon's 4 card routes into same `index.js` — implemented from spec; copy-verify when pushed
+- [x] Merge `schema.prisma`:
   ```prisma
   model Board {
     id        Int      @id @default(autoincrement())
@@ -87,10 +87,10 @@
     createdAt DateTime @default(now())
   }
   ```
-- [ ] **Update GET /cards → GET /boards/:boardId/cards** (filter by boardId)
-- [ ] Create `.env` with `DATABASE_URL=postgresql://user:password@localhost:5432/kudos_full`
-- [ ] Run `npx prisma migrate dev --name init`
-- [ ] Test all 7 endpoints in Postman
+- [x] **Update GET /cards → GET /boards/:boardId/cards** (filter by boardId; also 404s if board missing)
+- [x] Create `.env` with `DATABASE_URL=postgresql://user:password@localhost:5432/kudos_full`
+- [ ] ⏳ Run `npx prisma migrate dev --name init` — BLOCKED: placeholder `user:password` creds are denied; needs real DB credentials. Schema validates ✅ and client generates ✅.
+- [~] Test all 7 endpoints — server boots ✅, all routes wired ✅, validation (400) and DB-error (500) paths verified via curl ✅; full CRUD pending a live DB.
 
 #### Day 6 (Monday) — Frontend Integration
 - [ ] Create `charles-integration/frontend/` (can copy your existing React app)
