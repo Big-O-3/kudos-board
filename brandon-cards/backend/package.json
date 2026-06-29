@@ -1,0 +1,24 @@
+{
+  "name": "brandon-cards-backend",
+  "version": "1.0.0",
+  "description": "Standalone Cards API (Express + Prisma + PostgreSQL) for the Kudos Board project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "seed": "node prisma/seed.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/client": "^6.7.0",
+    "cors": "^2.8.6",
+    "express": "^4.22.2",
+    "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.7.0"
+  }
+}
