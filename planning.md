@@ -151,4 +151,80 @@ model Card {
 
 ---
 
-**Code-Spec Parity:** To be verified during Milestones 1-3
+**Code-Spec Parity:** Verified during integration — see reconciliation below.
+
+---
+
+## Spec Reconciliation — Backend (Milestone 2)
+
+Verified `charles-integration/backend` against Prateek's `prateek-boards/backend`
+and Brandon's `brandon-cards/backend` after both pushed.
+
+### Endpoints verified:
+- GET /boards — ✅ matches spec (returns `{ boards }`, ordered by createdAt desc)
+- POST /boards — ✅ matches spec (title/category/imageUrl required → 201 `{ board }`; 400 otherwise)
+- DELETE /boards/:id — ✅ matches spec (204; 404 via Prisma P2025)
+- GET /boards/:boardId/cards — ✅ matches spec (integration route; 404 if board missing)
+- POST /cards — ✅ matches spec (boardId/message/gifUrl required → 201 `{ card }`)
+- PATCH /cards/:id/upvote — ✅ matches spec (increments by 1, returns `{ card }`; 404)
+- DELETE /cards/:id — ✅ matches spec (204; 404)
+
+### Schema verified:
+- Board model — ✅ matches Prateek's schema (id, title, category, author?, imageUrl, createdAt)
+- Card model — ✅ matches Brandon's schema (id, boardId, message, gifUrl, author?, upvotes, createdAt)
+- Relationship (Board → Cards) — ✅ added during integration: one-to-many, `onDelete: Cascade`
+
+### Gaps found and resolved:
+- **`GET /cards` → `GET /boards/:boardId/cards`:** Brandon's standalone app served all
+  cards at `/cards` with no board filter (boardId defaulted to 1). Integration migrated
+  this to the board-scoped route and added a 404 when the board doesn't exist. ✅ resolved.
+- **`POST /cards` board existence:** standalone app didn't verify the board (none existed).
+  Integration adds a `findUnique` check → 404 if the board is missing. ✅ resolved.
+- **No FK in standalone Card model:** Brandon intentionally omitted the Board relation
+  (isolated DB). Integration adds the FK + cascade in the merged schema. ✅ resolved.
+
+### Intentional spec updates:
+- Prisma pinned to v6 in the integrated backend. Prisma v7 removed `url = env(...)` from
+  schema files in favor of a `prisma.config.ts` driver adapter; v6 keeps the team's
+  documented `migrate dev` workflow and stays byte-compatible with both partners' schemas.
+
+---
+
+## Final Spec Reconciliation — Full Pipeline (Milestone 3)
+
+Verified `charles-integration/frontend` against the partners' pushed frontends.
+
+### Frontend fetch calls verified (centralized in `src/api.js`):
+- GET /boards (home page load) — ✅ matches Prateek's `data.boards` usage
+- POST /boards (create board) — ✅ matches (optimistic `[board, ...prev]` insert)
+- DELETE /boards/:id — ✅ matches
+- GET /boards/:boardId/cards — ✅ matches integration contract
+- POST /cards (boardId from URL) — ✅ matches Brandon's payload shape
+- PATCH /cards/:id/upvote — ✅ matches
+- DELETE /cards/:id — ✅ matches
+
+### Integration gaps found and resolved:
+- **Category value `thank-you` vs `thank you`:** My Phase-1 FilterButtons used `'thank you'`
+  (space). Prateek's CreateBoardForm dropdown emits `'thank-you'` (hyphen), matching the
+  planning.md schema comment. Fixed FilterButtons + mock data + tests to `'thank-you'`,
+  so the category filter actually matches real board data. ✅ resolved.
+- **GIPHY API key:** Both my integration and Brandon's app read `VITE_GIPHY_API_KEY` from
+  Vite env. ✅ consistent (no gap).
+- **GIF result shape:** Brandon normalizes GIPHY results to `{ id, url, previewUrl, title }`
+  via an `api/giphy.js` helper; my integrated CreateCardForm reads the raw GIPHY shape
+  inline. Both store `images.original.url` as `gifUrl`, so the persisted data is identical.
+  Structural difference only — no behavioral gap.
+
+### State architecture verified:
+- HomePage state (boards, searchQuery, selectedCategory, computed filteredBoards) — ✅ matches
+- BoardPage state (boardId from URL, cards, isLoading) — ✅ matches
+- Create/Tile loading flags (isSubmitting, isDeleting, isUpvoting) — ✅ matches
+
+### Final code-spec parity assessment:
+- Is planning.md accurate? ✅ Yes. Backend routes, response shapes, schema, and frontend
+  fetch contracts all match across the three workspaces.
+- ⚠️ Outstanding (environmental, not code): full end-to-end run requires a live `kudos_full`
+  Postgres database. The placeholder `user:password` credentials in `.env` are denied, so
+  `prisma migrate dev` and a live CRUD walkthrough have not been executed. All static checks
+  pass: schema validates, frontend builds + lints, 9 unit tests pass, both routes serve, and
+  the UI degrades gracefully on backend errors.

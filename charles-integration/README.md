@@ -95,9 +95,9 @@
 #### Day 6 (Monday) — Frontend Integration
 - [x] Use existing Phase 1 React app at `charles-integration/frontend/`
 - [x] Install React Router: `npm install react-router-dom`
-- [~] Copy components:
-  - From Prateek: `BoardGrid.jsx`, `BoardTile.jsx`, `CreateBoardForm.jsx` — built from spec (not pushed); copy-verify on Day 7
-  - From Brandon: `CardGrid.jsx`, `CardTile.jsx`, `CreateCardForm.jsx` (with GIPHY) — built from spec; copy-verify on Day 7
+- [x] Copy components (built from spec, reconciled against partners' pushed code — see planning.md):
+  - From Prateek: `BoardGrid.jsx`, `BoardTile.jsx`, `CreateBoardForm.jsx` — ✅ contracts match (categories, fields, fetch shapes)
+  - From Brandon: `CardGrid.jsx`, `CardTile.jsx`, `CreateCardForm.jsx` (with GIPHY) — ✅ contracts match (GIPHY env var, gifUrl shape)
   - Your own: `Header.jsx`, `Banner.jsx`, `Footer.jsx`, `SearchBar.jsx`, `FilterButtons.jsx` ✅
 - [x] Create `HomePage.jsx`:
   - Renders: Header + Banner + SearchBar + FilterButtons + CreateBoardForm + BoardGrid + Footer
@@ -117,23 +117,14 @@
   - Create card: `POST /cards` (boardId from URL) ✅
   - Upvote card: `PATCH /cards/:id/upvote` ✅
   - Delete card: `DELETE /cards/:id` ✅
-- [~] Test end-to-end flow — code complete & wired; full run needs a live `kudos_full` DB (creds blocked, see Day 5). Verified: build ✅, lint ✅, 9 unit tests ✅, both routes serve 200, UI handles backend errors gracefully. GIPHY uses `VITE_GIPHY_API_KEY` (public beta key fallback).
+- [~] Test end-to-end flow — code complete & wired; full run needs a live `kudos_full` DB (creds blocked, see Day 5). Verified: build ✅, lint ✅, 9 unit tests ✅, both routes serve 200, UI handles backend errors gracefully. GIPHY uses `VITE_GIPHY_API_KEY`.
 
 #### Day 7 (Tuesday) — Reconciliation & Polish
-- [ ] Open `planning.md`
-- [ ] Add **Spec Reconciliation — Backend** section:
-  - List all 7 endpoints
-  - For each: ✅ matches spec OR ⚠️ gap: [explain]
-  - Verify Board model matches schema spec
-  - Verify Card model matches schema spec
-  - List any gaps found and how you resolved them
-- [ ] Add **Final Spec Reconciliation — Full Pipeline** section:
-  - Verify all frontend fetch calls match API contracts
-  - List integration gaps found and resolved
-  - Verify state architecture matches implementation
-  - Final assessment: Is planning.md accurate? ✅ or ⚠️ differences
-- [ ] Commit reconciliation sections
-- [ ] Final testing with Prateek and Brandon
+- [x] Open `planning.md`
+- [x] Add **Spec Reconciliation — Backend** section (7 endpoints, both schemas, 3 gaps resolved)
+- [x] Add **Final Spec Reconciliation — Full Pipeline** section (fetch calls, gaps, state arch, final assessment)
+- [x] Commit reconciliation sections
+- [~] Final testing with Prateek and Brandon — static checks pass (build/lint/tests/routes); live end-to-end pending a `kudos_full` DB (creds blocked)
 
 ## Components You Own
 
