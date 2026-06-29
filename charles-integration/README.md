@@ -39,14 +39,14 @@
 - [x] Test: search "thank" → only boards with "thank" in title
 
 #### Day 3 (Friday) — Category Filter
-- [ ] Build `FilterButtons.jsx` (button group or dropdown):
+- [x] Build `FilterButtons.jsx` (button group or dropdown):
   - Buttons: All, Recent, Celebration, Thank you, Inspiration
-- [ ] Filter logic:
+- [x] Filter logic:
   - **All**: show all boards
   - **Recent**: sort by `createdAt` descending, take first 6
   - **Celebration/Thank you/Inspiration**: filter by `category === selected`
-- [ ] Still using mock data
-- [ ] Test all filters work
+- [x] Still using mock data
+- [x] Test all filters work
 
 #### Day 4 (Saturday) — Polish Discovery UI
 - [ ] Combine search + filter (both work together)
