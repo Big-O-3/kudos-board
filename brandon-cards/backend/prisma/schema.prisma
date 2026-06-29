@@ -1,0 +1,24 @@
+// Prisma schema for Brandon's standalone Cards app.
+// NOTE: This is the cards-only workspace. The Card model intentionally has a
+// `boardId` field but NO foreign-key relation to a Board model — boards do not
+// exist in this isolated database (`kudos_cards_brandon`). Charles will add the
+// Board relation during integration. See brandon-cards/README.md.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Card {
+  id        Int      @id @default(autoincrement())
+  boardId   Int // No FK constraint yet — added during integration.
+  message   String
+  gifUrl    String
+  author    String?
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+}

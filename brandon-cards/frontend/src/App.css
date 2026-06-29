@@ -1,0 +1,64 @@
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.app__header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.app__title {
+  margin: 0;
+  font-size: 2.2rem;
+  color: var(--accent-dark);
+}
+
+.app__subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.app__main {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.app__create {
+  position: sticky;
+  top: 16px;
+}
+
+.app__list-title {
+  margin: 0 0 12px;
+  font-size: 1.4rem;
+}
+
+.app__status {
+  color: var(--muted);
+  padding: 16px 0;
+}
+
+.app__status--error {
+  color: var(--danger);
+}
+
+.app__footer {
+  margin-top: 48px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Stack the form above the grid on tablet/mobile. */
+@media (max-width: 820px) {
+  .app__main {
+    grid-template-columns: 1fr;
+  }
+  .app__create {
+    position: static;
+  }
+}
