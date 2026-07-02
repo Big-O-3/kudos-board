@@ -257,6 +257,115 @@ app.delete('/cards/:id', async (req, res) => {
   }
 })
 
+// --- Stats & analytics --------------------------------------------------------
+
+// Time-decayed "trending" score (Hacker News-style gravity):
+//   score = (upvotes + comments + 1) / (ageHours + 2)^1.5
+// Recent engagement outranks old cards with more raw upvotes.
+function trendingScore(card, commentCount, now) {
+  const ageHours = (now - new Date(card.createdAt).getTime()) / 3_600_000
+  const engagement = card.upvotes + commentCount + 1
+  return engagement / Math.pow(ageHours + 2, 1.5)
+}
+
+// GET /stats — aggregate metrics + leaderboards for the analytics dashboard.
+app.get('/stats', async (req, res) => {
+  try {
+    const [boards, cards, commentGroups] = await Promise.all([
+      prisma.board.findMany(),
+      prisma.card.findMany(),
+      prisma.comment.groupBy({ by: ['cardId'], _count: { _all: true } }),
+    ])
+
+    const commentCountByCard = new Map(
+      commentGroups.map((g) => [g.cardId, g._count._all]),
+    )
+    const totalComments = commentGroups.reduce((s, g) => s + g._count._all, 0)
+    const totalUpvotes = cards.reduce((s, c) => s + c.upvotes, 0)
+
+    // Boards per category.
+    const boardsByCategory = {}
+    for (const b of boards) {
+      boardsByCategory[b.category] = (boardsByCategory[b.category] || 0) + 1
+    }
+
+    // Cards created per day (last 14 days), oldest first.
+    const DAY = 86_400_000
+    const now = Date.now()
+    const activity = []
+    for (let i = 13; i >= 0; i--) {
+      const dayStart = new Date(now - i * DAY)
+      dayStart.setHours(0, 0, 0, 0)
+      const dayEnd = dayStart.getTime() + DAY
+      const count = cards.filter((c) => {
+        const t = new Date(c.createdAt).getTime()
+        return t >= dayStart.getTime() && t < dayEnd
+      }).length
+      activity.push({ date: dayStart.toISOString().slice(0, 10), count })
+    }
+
+    // Top cards by upvotes.
+    const topCards = [...cards]
+      .sort((a, b) => b.upvotes - a.upvotes)
+      .slice(0, 5)
+      .map((c) => ({
+        id: c.id,
+        boardId: c.boardId,
+        message: c.message,
+        author: c.author,
+        upvotes: c.upvotes,
+        comments: commentCountByCard.get(c.id) || 0,
+      }))
+
+    // Trending cards (time-decayed engagement).
+    const trendingCards = [...cards]
+      .map((c) => ({
+        id: c.id,
+        boardId: c.boardId,
+        message: c.message,
+        author: c.author,
+        upvotes: c.upvotes,
+        comments: commentCountByCard.get(c.id) || 0,
+        score: Number(
+          trendingScore(c, commentCountByCard.get(c.id) || 0, now).toFixed(4),
+        ),
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+
+    // Top authors by total upvotes received on their cards.
+    const authorUpvotes = {}
+    for (const c of cards) {
+      const name = c.author?.trim() || 'Anonymous'
+      authorUpvotes[name] = (authorUpvotes[name] || 0) + c.upvotes
+    }
+    const topAuthors = Object.entries(authorUpvotes)
+      .map(([author, upvotes]) => ({ author, upvotes }))
+      .sort((a, b) => b.upvotes - a.upvotes)
+      .slice(0, 5)
+
+    res.status(200).json({
+      totals: {
+        boards: boards.length,
+        cards: cards.length,
+        upvotes: totalUpvotes,
+        comments: totalComments,
+        avgCardsPerBoard: boards.length
+          ? Number((cards.length / boards.length).toFixed(1))
+          : 0,
+      },
+      boardsByCategory,
+      activity,
+      topCards,
+      trendingCards,
+      topAuthors,
+    })
+  } catch (err) {
+    console.error('GET /stats', err)
+    res.status(500).json({ error: 'Failed to compute stats' })
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`Kudos Board backend listening on http://localhost:${PORT}`)
 })

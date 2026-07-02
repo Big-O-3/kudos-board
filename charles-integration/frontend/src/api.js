@@ -52,6 +52,9 @@ export const pinCard = (id, isPinned) =>
   })
 export const deleteCard = (id) => request(`/cards/${id}`, { method: 'DELETE' })
 
+// --- Stats ---
+export const getStats = () => request('/stats')
+
 // --- Comments ---
 export const getComments = (cardId) => request(`/cards/${cardId}/comments`)
 export const createComment = (cardId, data) =>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Sun, Moon } from 'lucide-react'
+import { Sun, Moon, TrendingUp } from 'lucide-react'
 import { useTheme } from '../theme-context'
 
 function Header() {
@@ -15,13 +15,22 @@ function Header() {
             Kudos Board
           </span>
         </Link>
-        <button
-          onClick={toggle}
-          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-secondary-foreground shadow-sm transition-all duration-200 hover:bg-primary hover:text-primary-foreground"
-        >
-          {isDark ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/stats"
+            className="flex items-center gap-1.5 rounded-xl bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground shadow-sm transition-all duration-200 hover:bg-primary hover:text-primary-foreground"
+          >
+            <TrendingUp size={14} />
+            <span className="hidden sm:inline">Analytics</span>
+          </Link>
+          <button
+            onClick={toggle}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-secondary-foreground shadow-sm transition-all duration-200 hover:bg-primary hover:text-primary-foreground"
+          >
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+        </div>
       </div>
     </header>
   )
