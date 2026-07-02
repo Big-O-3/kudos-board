@@ -92,6 +92,7 @@
 - [x] Run `npx prisma migrate dev --name init` — ✅ applied, DB in sync with schema
 - [x] Test all 7 endpoints — ✅ all pass live via curl: create/list boards, create/list cards, upvote (repeatable), delete card, **cascade delete board removes its cards**, plus 400/404 error cases
 
+
 #### Day 6 (Monday) — Frontend Integration
 - [x] Use existing Phase 1 React app at `charles-integration/frontend/`
 - [x] Install React Router: `npm install react-router-dom`

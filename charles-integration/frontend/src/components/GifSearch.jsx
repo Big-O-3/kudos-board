@@ -5,26 +5,32 @@ import { searchGifs } from '../api'
 const labelCls =
   'mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground'
 
-// Debounced GIPHY search + thumbnail picker.
+// Debounced GIPHY search + thumbnail picker, with a manual paste-URL fallback
+// so a card can always get a GIF even if the GIPHY key is missing/banned.
 // Props: selected (gif | null), onSelect(gif | null)
 function GifSearch({ selected, onSelect }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [searching, setSearching] = useState(false)
   const [searched, setSearched] = useState(false)
+  const [error, setError] = useState(null)
+  const [manualUrl, setManualUrl] = useState('')
   const timerRef = useRef(null)
 
   const doSearch = useCallback(async (q) => {
     if (!q.trim()) {
       setResults([])
       setSearched(false)
+      setError(null)
       return
     }
     setSearching(true)
+    setError(null)
     try {
       setResults(await searchGifs(q))
-    } catch {
+    } catch (err) {
       setResults([])
+      setError(err.message)
     } finally {
       setSearching(false)
       setSearched(true)
@@ -36,6 +42,14 @@ function GifSearch({ selected, onSelect }) {
     timerRef.current = setTimeout(() => doSearch(query), 500)
     return () => clearTimeout(timerRef.current)
   }, [query, doSearch])
+
+  // Use a pasted GIF URL as the selection.
+  function applyManualUrl() {
+    const url = manualUrl.trim()
+    if (!url) return
+    onSelect({ id: `manual-${url}`, url, previewUrl: url, title: 'Pasted GIF' })
+    setManualUrl('')
+  }
 
   return (
     <div>
@@ -84,14 +98,41 @@ function GifSearch({ selected, onSelect }) {
         </div>
       )}
 
-      {!searching && searched && results.length === 0 && (
+      {!searching && error && (
+        <p className="mb-2 text-xs text-amber-600 dark:text-amber-400">{error}</p>
+      )}
+
+      {!searching && searched && !error && results.length === 0 && (
         <p className="py-4 text-center text-xs text-muted-foreground">
           No GIFs found — try a different search.
         </p>
       )}
 
+      {/* Manual fallback: paste any GIF/image URL directly. */}
+      <div className="mb-1 flex gap-2">
+        <input
+          value={manualUrl}
+          onChange={(e) => setManualUrl(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              applyManualUrl()
+            }
+          }}
+          placeholder="…or paste a GIF URL"
+          className="min-w-0 flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
+        />
+        <button
+          type="button"
+          onClick={applyManualUrl}
+          className="rounded-xl bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+        >
+          Use
+        </button>
+      </div>
+
       {selected && (
-        <div className="mt-1">
+        <div className="mt-3">
           <p className={labelCls}>Selected Preview</p>
           <div
             className="relative w-full overflow-hidden rounded-xl bg-secondary"

@@ -55,7 +55,14 @@ export async function searchGifs(query) {
     rating: 'g',
   })
   const res = await fetch(`https://api.giphy.com/v1/gifs/search?${params}`)
-  if (!res.ok) throw new Error(`GIPHY request failed (${res.status})`)
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      throw new Error(
+        'GIPHY key invalid or banned. Set VITE_GIPHY_API_KEY in frontend/.env.local, or paste a GIF URL below.',
+      )
+    }
+    throw new Error(`GIPHY request failed (${res.status})`)
+  }
   const body = await res.json()
   return (body.data || []).map((g) => ({
     id: g.id,
